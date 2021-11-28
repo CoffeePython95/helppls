@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TODO List</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
+          integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
+</head>
+<body>
+    <form id="welcomeForm" class="pure-form" style="width: 20%; margin: 0 auto">
+        <input type="text" name="name" class="pure-input-rounded" placeholder="name"/>
+        <fieldset id="langs">  </fieldset>
+        <button id="btn" type="submit" class="pure-button pure pure-button-primary">Submit</button>
+    </form>
+    <div id="welcome" style="width: 20%; margin: 0 auto">
+
+    </div>
+    <script>
+        const API_URL = 'http://localhost:8080/api?'
+
+        const CODE_TO_EMOJI ={
+            'pl' : '🇵🇱',
+            'en' : '🇺🇸',
+            'de' : '🇩🇪',
+            'cz' : '🇨🇿',
+            'nl' : '🇳🇱'
+        }
+        fetch(`${API_URL}/langs`)
+            .then(response => response.json())
+            .then((langArr) => {
+                const checkboxes = langArr.map(l => `
+                <label class="pure-radio">
+                    <input type="radio" name="lang" value="${l.id}" checked/>
+                    ${CODE_TO_EMOJI[l.code]}
+                </label>
+                `).join('\n');
+                document.getElementById('langs').innerHTML = checkboxes
+            })
+
+        const div = document.getElementById('welcome')
+        const form = document.getElementById('welcomeForm')
+
+        document.getElementById('btn').addEventListener('click', (event) => {
+            event.preventDefault();
+            const formObj = {
+                name : form.elements.name.value,
+                lang : form.elements.lang.value
+            }
+            fetch(`${API_URL}?${new URLSearchParams(formObj)}`)
+                .then((response) => {
+                    return response.text();
+                })
+                .then((text) => {
+                    div.innerHTML = `
+                        <h1>${text}</h1>
+                    `
+                })
+        })
+    </script>
+</body>
+</html>
